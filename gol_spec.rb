@@ -1,4 +1,4 @@
-
+require './gol'
 
 describe "game of life" do
 
@@ -8,7 +8,7 @@ describe "game of life" do
 
     subject { Cell.new(world) }
 
-    it "spawn relative to" do
+    it "spawns relative to" do
       cell = subject.spawn_at(3, 5)
       cell.is_a?(Cell).should be_true
       cell.x.should == 3
@@ -26,8 +26,18 @@ describe "game of life" do
       subject.neighbors.count.should == 1
     end
 
-    it "should be dead in next generation in under-population" do
-      subject.next_generation
+    it "detects a neighbor to the west" do
+      cell = subject.spawn_at(-1, 0)
+      subject.neighbors.count.should == 1
+    end
+
+    it "detects a neighbor to the east" do
+      cell = subject.spawn_at(1, 0)
+      subject.neighbors.count.should == 1
+    end
+
+    it "dies and will be excluded from teh world" do
+      subject.die!
       subject.should be_dead
     end
 
@@ -40,66 +50,75 @@ describe "game of life" do
     cell.should be_dead
   end
 
-end
-
-
-class Cell
-
-  attr_accessor :world, :x, :y
-
-  def initialize(world, x = 0, y = 0)
-    @world = world
-    @x = x
-    @y = y
-    @world.cells << self
-    @dead = false
+  it "any live cell with 2 or 3 live neighbor survive to the next generation" do
+    cell = Cell.new(world)
+    new_cell = cell.spawn_at(1, 0)
+    other_new_cell = cell.spawn_at(-1, 0)
+    world.tick!
+    cell.should be_alive
   end
 
-  def neighbors
-    @neighbors = []
-    @world.cells.each do |cell|
-      #Has a cell to the north
-      if self.x == cell.x && self.y == cell.y - 1
-        @neighbors << cell
-      end 
+  it "any dead cell with exactly 3 neighbors will be back to life" do
+    cell = Cell.new(world)
+    cell.die!
+    cell.should be_dead
 
-      #Has a cell to the north east
-      if self.x == cell.x - 1 && self.y == cell.y - 1
-        @neighbors << cell
-      end
-    end
-
-    @neighbors
-  end
-
-  def spawn_at(x, y)
-    Cell.new(@world, x, y)
-  end
-
-  def next_generation
-    if neighbors.count < 2
-      @dead = true
-    end
-  end
-
-  def dead?
-    @dead
+    neighbor1 = cell.spawn_at(1, 0)
+    neighbor2 = cell.spawn_at(-1, 0)
+    neighbor3 = cell.spawn_at(1, 1)
+    world.tick!
+    cell.should be_alive
   end
 
 end
 
-class World
+describe "neighbor detector" do
 
-  attr_accessor :cells
+  let(:world) { World.new }
 
-  def initialize
-    @cells = []
+  before do
+    @subject = Cell.new(world)
   end
 
-  def tick!
-    cells.each do |cell|
-      cell.next_generation
-    end
+  it "detects north neighbor of a cell" do
+    cell = @subject.spawn_at(0, 1)
+    neighbors = get_neighbors
+    neighbors.count.should == 1
+  end
+
+  it "detects north east neighbor of a cell" do
+    cell = @subject.spawn_at(1, 1)
+    neighbors = get_neighbors 
+    neighbors.count.should == 1
+  end
+
+  it "detects east neighbor of a cell" do
+    cell = @subject.spawn_at(1, 0)
+    neighbors = get_neighbors 
+    neighbors.count.should == 1
+  end
+
+  it "detects west neighbor of a cell" do
+    cell = @subject.spawn_at(-1, 0)
+    neighbors = get_neighbors 
+    neighbors.count.should == 1
+  end
+
+  it "detects south neighbor of a cell" do
+    cell = @subject.spawn_at(0, -1)
+    neighbors = get_neighbors 
+    neighbors.count.should == 1
+  end
+
+  it "detects south east neighbor of a cell" do
+    cell = @subject.spawn_at(1, -1)
+    neighbors = get_neighbors 
+    neighbors.count.should == 1
+  end
+
+
+  def get_neighbors
+    NeighborDetector.get_neighbors_of(@subject, world)
   end
 
 end
