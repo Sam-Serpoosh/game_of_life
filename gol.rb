@@ -76,6 +76,8 @@ class NeighborDetector
         neighbors << other_cell
       elsif neighbor_at_south_east(cell, other_cell)
         neighbors << other_cell
+      elsif neighbor_at_south_west(cell, other_cell)
+        neighbors << other_cell
       end
 
     end
@@ -106,6 +108,10 @@ class NeighborDetector
 
   def self.neighbor_at_south_east(cell, other_cell)
     return cell.x == other_cell.x - 1 && cell.y == other_cell.y + 1
+  end
+
+  def self.neighbor_at_south_west(cell, other_cell)
+    return cell.x == other_cell.x + 1 && cell.y == other_cell.y + 1
   end
 
 end

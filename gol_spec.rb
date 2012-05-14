@@ -36,7 +36,7 @@ describe "game of life" do
       subject.neighbors.count.should == 1
     end
 
-    it "dies and will be excluded from teh world" do
+    it "dies and will" do
       subject.die!
       subject.should be_dead
     end
@@ -81,41 +81,38 @@ describe "neighbor detector" do
   end
 
   it "detects north neighbor of a cell" do
-    cell = @subject.spawn_at(0, 1)
-    neighbors = get_neighbors
-    neighbors.count.should == 1
+    detect_neighbor(0, 1, 1)
   end
 
   it "detects north east neighbor of a cell" do
-    cell = @subject.spawn_at(1, 1)
-    neighbors = get_neighbors 
-    neighbors.count.should == 1
+    detect_neighbor(1, 1, 1)
   end
 
   it "detects east neighbor of a cell" do
-    cell = @subject.spawn_at(1, 0)
-    neighbors = get_neighbors 
-    neighbors.count.should == 1
+    detect_neighbor(1, 0, 1)
   end
 
   it "detects west neighbor of a cell" do
-    cell = @subject.spawn_at(-1, 0)
-    neighbors = get_neighbors 
-    neighbors.count.should == 1
+    detect_neighbor(-1, 0, 1)
   end
 
   it "detects south neighbor of a cell" do
-    cell = @subject.spawn_at(0, -1)
-    neighbors = get_neighbors 
-    neighbors.count.should == 1
+    detect_neighbor(0, -1, 1)
   end
 
   it "detects south east neighbor of a cell" do
-    cell = @subject.spawn_at(1, -1)
-    neighbors = get_neighbors 
-    neighbors.count.should == 1
+    detect_neighbor(1, -1, 1)
   end
 
+  it "detects south west neighbor of a cell" do
+    detect_neighbor(-1, -1, 1)
+  end
+
+  def detect_neighbor(x_pos, y_pos, expected_neighbor_count)
+    cell = @subject.spawn_at(x_pos, y_pos)
+    neighbors = get_neighbors 
+    neighbors.count.should == expected_neighbor_count
+  end
 
   def get_neighbors
     NeighborDetector.get_neighbors_of(@subject, world)
